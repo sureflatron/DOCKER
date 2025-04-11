@@ -3,7 +3,7 @@ version: '3.9'
 services:
   oracle-19c:
     image: doctorkirk/oracle-19c:19.3.0
-    container_name: ${NOMBRE:-oracle-default}  # Valor por defecto
+    container_name: ${NOMBRE:-oracle-stack}
     user: "oracle"
     read_only: true
     security_opt:
@@ -12,26 +12,22 @@ services:
       - ALL
     networks:
       - oracle-net
-    expose:
-      - "1521"
+    ports:
+      - "${ORACLE_PORT:-1521}:1521"
     environment:
-      - ORACLE_SID=${ORACLE_SID}
+      - ORACLE_SID=${ORACLE_SID:-ORCLCDB}
       - ORACLE_PWD=${ORACLE_PWD}
       - ORACLE_CHARACTERSET=AL32UTF8
       - NLS_LANG=AMERICAN_AMERICA.AL32UTF8
-      - TZ=${TZ}
+      - TZ=${TZ:-UTC}
       - INIT_SGA_SIZE=1024
       - INIT_PGA_SIZE=512
       - ENABLE_ARCHIVELOG=${ENABLE_ARCHIVELOG:-false}
     volumes:
-      - ${VOLUME_PATCH}:/opt/oracle/oradata
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 4G
+      - ${VOLUME_PATH:-./oradata}:/opt/oracle/oradata
+      - ${SCRIPT_PATH:-./scripts}:/opt/oracle/scripts
     healthcheck:
-      test: ["CMD", "sqlplus", "-L", "@/healthcheck.sql"]
+      test: ["CMD", "sqlplus", "-L", "@/opt/oracle/scripts/healthcheck.sql"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -40,4 +36,3 @@ services:
 networks:
   oracle-net:
     driver: bridge
-    internal: true
