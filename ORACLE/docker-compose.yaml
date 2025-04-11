@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  oracle-19c:
+    image: doctorkirk/oracle-19c:19.3.0  # Usar versión específica
+    container_name: ${NOMBRE}
+    user: "oracle"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - oracle-net
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_SID=${ORACLE_SID}
+      - ORACLE_PWD=${ORACLE_PWD}
+      - ORACLE_CHARACTERSET=AL32UTF8
+      - NLS_LANG=AMERICAN_AMERICA.AL32UTF8
+      - TZ=${TZ}
+      - INIT_SGA_SIZE=1024
+      - INIT_PGA_SIZE=512
+      - ENABLE_ARCHIVELOG=true
+    volumes:
+      - ${VOLUME_PATCH}:/opt/oracle/oradata
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "sqlplus", "-L", "sys/${ORACLE_PWD}@//localhost:1521/ORCLCDB as sysdba", "@healthcheck.sql"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+networks:
+  oracle-net:
+    driver: bridge
+    internal: true
+
+volumes:
+  oradata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${VOLUME_PATCH}

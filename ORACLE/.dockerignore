@@ -1,0 +1,4 @@
+# .dockerignore
+oradata/
+*.log
+*.trc
