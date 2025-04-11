@@ -1,2 +1,2 @@
 # DOCKER
-Repositorio de DockerComposo para Portainer
+Repositorio de DockerCompose para Portainer
