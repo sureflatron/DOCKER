@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   oracle-19c:
-    image: doctorkirk/oracle-19c:19.3.0
+    image: doctorkirk/oracle-19c:latest
     container_name: ${NOMBRE:-oracle-stack}
     user: "oracle"
     read_only: true
